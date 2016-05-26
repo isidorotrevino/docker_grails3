@@ -1,0 +1,57 @@
+#!/bin/bash
+
+APP_DIR=$1
+if [ "$#" -lt 2 ]; then
+	echo "Command receives at least two arguments (Application dir and grails command)"
+	exit 1
+fi
+if [ -z $APP_DIR ] || [ ! -d "$APP_DIR" ]; then
+	echo "You must specify the application directory as a parameter (and it must exist)"
+	exit 1
+fi
+
+if [ -d "/opt/workspaces/projects" ]; then
+	mkdir -p /opt/workspaces/projects
+fi
+if [ -d "/opt/workspaces/grails3" ]; then
+	mkdir -p /opt/workspaces/grails3
+fi
+if [ -d "/opt/jdks" ]; then
+	mkdir -p /opt/jdks
+fi
+if [ -d "/opt/tmp" ]; then
+	mkdir -p /opt/tmp
+fi
+if [ -d "/opt/workspaces/support_libs" ]; then
+	mkdir -p /opt/workspaces/support_libs
+fi
+if [ -d "$HOME/.docker" ]; then
+	mkdir -p "$HOME/.docker"
+fi
+if [ -d "$HOME/.gradle" ]; then
+	mkdir -p "$HOME/.gradle"
+fi
+if [ -d "$HOME/.m2" ]; then
+	mkdir -p "$HOME/.m2"
+fi
+if [ -d "$HOME/.grails" ]; then
+	mkdir -p "$HOME/.grails"
+fi
+
+docker run  --rm \
+		   -ti \
+           -e DISPLAY=$DISPLAY \
+           -v /tmp/.X11-unix:/tmp/.X11-unix \
+		   -v $APP_DIR:/app:rw \
+           -v /opt/workspaces/projects:/projects:rw \
+           -v /opt/workspaces/grails3:/home/developer/workspace:rw \
+           -v /opt/jdks:/jdks:rw \
+           -v /opt/tmp:/host_tmp:rw \
+		   -v /opt/workspaces/support_libs:/support:rw \
+		   -v `echo $HOME`/.docker:/home/developer/.docker \
+           -v `echo $HOME`/.gradle:/home/developer/.gradle \
+           -v `echo $HOME`/.m2:/home/developer/.m2 \
+           -v `echo $HOME`/.grails:/home/developer/.grails \
+           --name grails3 \
+           vintec/grails3:v3.1.7 "${@:2}"
+
